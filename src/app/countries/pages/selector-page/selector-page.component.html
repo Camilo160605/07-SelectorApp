@@ -1,6 +1,8 @@
 <h1 class="mt-3" >Selectores Aninados</h1>
 <hr>
 
+    <!-- Region  -->
+
 <form [formGroup]="myForm" (ngSubmit)="onSave()">
     <div class="row mb-3">
         <div class="col">
@@ -8,6 +10,18 @@
             <select formControlName="region" class="form-control">
                 <option value="">---Seleccione Continente---</option>
                 <option *ngFor="let region of regions" [value]="region"> {{ region }} </option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Paises por la region seleccionada -->
+
+    <div class="row mb-3">
+        <div class="col">
+            <label class="form-label"> País: </label>
+            <select formControlName="country" class="form-control">    
+                <option value=""> ---País--- </option>
+                <option *ngFor="let country of countriesByRegion" [value]="country.cca3"> {{ country.name }} </option>
             </select>
         </div>
     </div>

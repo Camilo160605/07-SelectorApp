@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CountriesService } from '../../services/countries.service';
 import { Region, SmallCountry } from '../../interfaces/contries.interface';
-import { switchMap } from 'rxjs';
+import { filter, switchMap, tap } from 'rxjs';
 
 @Component({
   selector: 'countries-selector-page',
@@ -15,9 +15,9 @@ export class SelectorPageComponent implements OnInit {
   public countriesByRegion : SmallCountry[] = []
 
   public myForm : FormGroup = this.fb.group({
-    region:['',[Validators.required]],
+    region :['',[Validators.required]],
     country:['',[Validators.required]],
-    fronteras:['',[Validators.required]],
+    border :['',[Validators.required]],
   })
 
 
@@ -28,6 +28,7 @@ export class SelectorPageComponent implements OnInit {
 
   ngOnInit(): void {
     this.onRegionChanged();
+    this.onCountryChanged();
   }
 
   onSave():void {}
@@ -40,10 +41,25 @@ export class SelectorPageComponent implements OnInit {
     this.myForm.get('region')!.valueChanges
     //Para siempre detectar los cambios en el formulario con un control especifico
     .pipe(
+      tap( () => this.myForm.get('country')?.setValue('') ),
       switchMap(region => this.countriesService.getCountriesByRegion( region ))
     )
     .subscribe( countries => {
       this.countriesByRegion = countries
+    })
+  }
+
+  onCountryChanged(): void{
+    this.myForm.get('country')!.valueChanges
+    //Para siempre detectar los cambios en el formulario con un control especifico
+    .pipe(
+      tap( () => this.myForm.get('border')!.setValue('') ),
+      filter((value : string ) => value.length > 0),
+      switchMap((alphaCode) => this.countriesService.getCountryByAlphaCode( alphaCode ))
+    )
+    .subscribe( country => {
+      console.log({borders : country.borders});
+      
     })
   }
 }

@@ -13,13 +13,12 @@ import { filter, switchMap, tap } from 'rxjs';
 export class SelectorPageComponent implements OnInit {
 
   public countriesByRegion : SmallCountry[] = []
-
+  public borders : SmallCountry[] = []
   public myForm : FormGroup = this.fb.group({
     region :['',[Validators.required]],
     country:['',[Validators.required]],
     border :['',[Validators.required]],
   })
-
 
   constructor( 
     private fb : FormBuilder,
@@ -39,7 +38,6 @@ export class SelectorPageComponent implements OnInit {
 
   onRegionChanged() : void {
     this.myForm.get('region')!.valueChanges
-    //Para siempre detectar los cambios en el formulario con un control especifico
     .pipe(
       tap( () => this.myForm.get('country')?.setValue('') ),
       switchMap(region => this.countriesService.getCountriesByRegion( region ))
@@ -55,10 +53,11 @@ export class SelectorPageComponent implements OnInit {
     .pipe(
       tap( () => this.myForm.get('border')!.setValue('') ),
       filter((value : string ) => value.length > 0),
-      switchMap((alphaCode) => this.countriesService.getCountryByAlphaCode( alphaCode ))
+      switchMap((alphaCode) => this.countriesService.getCountryByAlphaCode( alphaCode )),
+      switchMap( country => this.countriesService.getCountriesBordersByCode( country.borders ) )
     )
-    .subscribe( country => {
-      console.log({borders : country.borders});
+    .subscribe( countries => {
+      this.borders = countries;
       
     })
   }
